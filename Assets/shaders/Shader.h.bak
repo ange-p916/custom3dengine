@@ -1,0 +1,2 @@
+#include "glad/glad.h" // Correct path relative to your include directories
+#include <GLFW/glfw3.h>

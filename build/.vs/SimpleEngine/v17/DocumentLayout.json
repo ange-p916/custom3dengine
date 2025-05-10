@@ -1,12 +1,84 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\build\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{22AA352D-73CB-3D7B-A2D0-7730EABF465A}|SimpleEngine.vcxproj|C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\glad.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{22AA352D-73CB-3D7B-A2D0-7730EABF465A}|SimpleEngine.vcxproj|C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\Shader.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{22AA352D-73CB-3D7B-A2D0-7730EABF465A}|SimpleEngine.vcxproj|C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\Renderer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{22AA352D-73CB-3D7B-A2D0-7730EABF465A}|SimpleEngine.vcxproj|C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 208,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "glad.c",
+              "DocumentMoniker": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\glad.c",
+              "RelativeDocumentMoniker": "..\\src\\glad.c",
+              "ToolTip": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\glad.c",
+              "RelativeToolTip": "..\\src\\glad.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-05-10T07:07:23.402Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Shader.cpp",
+              "DocumentMoniker": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\Shader.cpp",
+              "RelativeDocumentMoniker": "..\\src\\Shader.cpp",
+              "ToolTip": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\Shader.cpp",
+              "RelativeToolTip": "..\\src\\Shader.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-10T07:07:22.099Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Renderer.cpp",
+              "DocumentMoniker": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\Renderer.cpp",
+              "RelativeDocumentMoniker": "..\\src\\Renderer.cpp",
+              "ToolTip": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\Renderer.cpp",
+              "RelativeToolTip": "..\\src\\Renderer.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-10T07:07:20.992Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\main.cpp",
+              "RelativeDocumentMoniker": "..\\src\\main.cpp",
+              "ToolTip": "C:\\dev\\MyFirstEngine\\MyFirstEngine\\src\\main.cpp",
+              "RelativeToolTip": "..\\src\\main.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFQAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-05-10T07:06:36.921Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

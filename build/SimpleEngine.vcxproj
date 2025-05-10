@@ -86,7 +86,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -104,10 +104,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -115,9 +115,9 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying shader: triangle.vert	Copying shader: triangle.frag</Message>
+      <Message>Copying shader: triangle.vert to shaders/ subdirectory	Copying shader: triangle.frag to shaders/ subdirectory</Message>
       <Command>setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/Debug
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/Debug/shaders/triangle.vert
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -126,7 +126,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/Debug
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/Debug/shaders/triangle.frag
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -136,7 +136,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -151,7 +151,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -169,10 +169,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -180,9 +180,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying shader: triangle.vert	Copying shader: triangle.frag</Message>
+      <Message>Copying shader: triangle.vert to shaders/ subdirectory	Copying shader: triangle.frag to shaders/ subdirectory</Message>
       <Command>setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/Release
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/Release/shaders/triangle.vert
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -191,7 +191,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/Release
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/Release/shaders/triangle.frag
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -201,7 +201,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -216,7 +216,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
@@ -234,10 +234,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -245,9 +245,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying shader: triangle.vert	Copying shader: triangle.frag</Message>
+      <Message>Copying shader: triangle.vert to shaders/ subdirectory	Copying shader: triangle.frag to shaders/ subdirectory</Message>
       <Command>setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/MinSizeRel
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/MinSizeRel/shaders/triangle.vert
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -256,7 +256,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/MinSizeRel
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/MinSizeRel/shaders/triangle.frag
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -266,7 +266,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -281,7 +281,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -298,10 +298,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -309,9 +309,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>Copying shader: triangle.vert	Copying shader: triangle.frag</Message>
+      <Message>Copying shader: triangle.vert to shaders/ subdirectory	Copying shader: triangle.frag to shaders/ subdirectory</Message>
       <Command>setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/RelWithDebInfo
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.vert C:/dev/MyFirstEngine/MyFirstEngine/build/RelWithDebInfo/shaders/triangle.vert
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -320,7 +320,7 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/RelWithDebInfo
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/dev/MyFirstEngine/MyFirstEngine/assets/shaders/triangle.frag C:/dev/MyFirstEngine/MyFirstEngine/build/RelWithDebInfo/shaders/triangle.frag
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -330,7 +330,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -401,10 +401,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\main.cpp" />
-    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\Renderer.cpp" />
-    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\Shader.cpp" />
-    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\glad\src\glad.c">
+    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\main.cpp" />
+    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Renderer.cpp" />
+    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Shader.cpp" />
+    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\glad.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <FileType>CppCode</FileType>
     </ClCompile>

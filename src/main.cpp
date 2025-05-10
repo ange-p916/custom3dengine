@@ -1,41 +1,56 @@
 // main.cpp
 // Basic game loop, input handling, and moving a GameObject.
+// WITH DEBUGGING FOR MOVEMENT
 
-#include <iostream>
+#include <iostream> // For std::cout
 #include "glad/glad.h" 
-#include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h> 
 
+// Assuming your headers are in include/MyFirstEngine/
+// Adjust if they are directly in include/ or elsewhere
+#include "MyFirstEngine/Renderer.h" 
 #include "MyFirstEngine/GameObject.h" 
-#include "MyFirstEngine/Transform.h"
-#include "MyFirstEngine/Renderer.h"
-// etc.
 
 // Window dimensions
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // Our single game object
-GameObject triangleObject(0, "MyTriangle"); // ID 0, name "MyTriangle"
-float moveSpeed = 0.01f; // Speed at which the triangle moves
+GameObject triangleObject(0, "MyTriangle"); 
+float moveSpeed = 0.01f; // Speed at which the triangle moves (ensure this is not 0.0f)
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-// Updated input processing
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    // Movement controls for the triangleObject
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    bool moved = false;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         triangleObject.transform.position.y += moveSpeed;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        moved = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
         triangleObject.transform.position.y -= moveSpeed;
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        moved = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         triangleObject.transform.position.x -= moveSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        moved = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         triangleObject.transform.position.x += moveSpeed;
+        moved = true;
+    }
+
+    if (moved) {
+        // Print the position if a movement key was pressed
+        std::cout << "Triangle Position: X=" << triangleObject.transform.position.x
+                  << ", Y=" << triangleObject.transform.position.y
+                  << ", Z=" << triangleObject.transform.position.z << std::endl;
+    }
 }
 
 int main() {
@@ -65,24 +80,31 @@ int main() {
         return -1;
     }
 
-    Renderer renderer;
+    // Assuming Renderer.h is in include/MyFirstEngine/
+    // Adjust include path if necessary
+    Renderer renderer; 
     if (!renderer.init()) {
         std::cerr << "Failed to initialize renderer" << std::endl;
         glfwTerminate();
         return -1;
     }
 
+    std::cout << "Initial Triangle Position: X=" << triangleObject.transform.position.x
+              << ", Y=" << triangleObject.transform.position.y
+              << ", Z=" << triangleObject.transform.position.z << std::endl;
+    std::cout << "Move Speed: " << moveSpeed << std::endl;
+    std::cout << "Use W, A, S, D keys to move the triangle. ESC to close." << std::endl;
+
+
     // --- Game Loop ---
     while (!glfwWindowShouldClose(window)) {
         // Input
         processInput(window);
 
-        // Update (game logic would go here - for now, input directly changes position)
-        // triangleObject.transform.position.x += 0.0001f; // Example of continuous movement
+        // Update (game logic - position is updated in processInput for now)
 
         // Render
-        // Pass the current position of our triangleObject to the renderer
-        renderer.draw();
+        renderer.draw(triangleObject.transform.position);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

@@ -1,0 +1,10 @@
+^C:\DEV\MYFIRSTENGINE\MYFIRSTENGINE\BUILD\CMAKEFILES\74B4534D933EB46A4512713B84373DE8\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/dev/MyFirstEngine/MyFirstEngine -BC:/dev/MyFirstEngine/MyFirstEngine/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/dev/MyFirstEngine/MyFirstEngine/build/SimpleEngine.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

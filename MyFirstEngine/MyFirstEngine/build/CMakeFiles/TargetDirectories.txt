@@ -1,0 +1,3 @@
+C:/dev/MyFirstEngine/MyFirstEngine/build/CMakeFiles/SimpleEngine.dir
+C:/dev/MyFirstEngine/MyFirstEngine/build/CMakeFiles/ALL_BUILD.dir
+C:/dev/MyFirstEngine/MyFirstEngine/build/CMakeFiles/ZERO_CHECK.dir

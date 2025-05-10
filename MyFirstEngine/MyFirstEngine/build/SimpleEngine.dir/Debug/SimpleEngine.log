@@ -1,0 +1,9 @@
+﻿  Building Custom Rule C:/dev/MyFirstEngine/MyFirstEngine/CMakeLists.txt
+  main.cpp
+  Renderer.cpp
+  Shader.cpp
+  Generating Code...
+  glad.c
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  SimpleEngine.vcxproj -> C:\dev\MyFirstEngine\MyFirstEngine\build\Debug\SimpleEngine.exe
+  Copying shader: triangle.vert	Copying shader: triangle.frag

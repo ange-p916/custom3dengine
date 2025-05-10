@@ -1,16 +1,24 @@
 // triangle.frag
-// Basic Fragment Shader
+// Fragment Shader using interpolated vertex color.
+// This shader receives the interpolated color from the vertex shader
+// and sets the final color of the fragment (pixel).
 
 #version 330 core // Specify GLSL version 3.30, core profile
 
+// Input variable from the vertex shader (interpolated color)
+// The 'in' keyword signifies that this variable receives its value from the
+// corresponding 'out' variable in the vertex shader.
+// The name 'vertexColor' must match the 'out' variable in triangle.vert.
+in vec3 vertexColor; 
+
 // Output data for the fragment shader
-out vec4 FragColor; // This variable will hold the final color of the fragment
+// FragColor is a built-in output variable (though often user-defined 'out vec4 outColor;')
+// that determines the final color of the pixel being rendered.
+out vec4 FragColor; 
 
 void main()
 {
-    // Set the fragment color to a solid orange.
-    // Colors are in RGBA format, where each component ranges from 0.0 to 1.0.
-    // R=1.0 (red), G=0.5 (green), B=0.2 (blue), A=1.0 (alpha/opacity)
-    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f); // Orange color
+    // Set the fragment's color to the interpolated color received from the vertex shader.
+    // The alpha component is set to 1.0 (fully opaque).
+    FragColor = vec4(vertexColor, 1.0f); 
 }
-

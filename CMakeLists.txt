@@ -33,7 +33,8 @@ add_executable(SimpleEngine
     ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/Renderer.cpp
     ${PROJECT_SOURCE_DIR}/Shader.cpp
-    ${PROJECT_SOURCE_DIR}/glad.c  # Assuming you moved glad.c to src/
+    ${PROJECT_SOURCE_DIR}/Camera.cpp  # <-- Added Camera.cpp
+    ${PROJECT_SOURCE_DIR}/glad.c
 )
 
 # --- Find and Link Libraries ---
@@ -46,13 +47,13 @@ find_package(glfw3)
 
 if (glfw3_FOUND)
     message(STATUS "Found GLFW via find_package(). Linking automatically.")
-    target_link_libraries(SimpleEngine PRIVATE glfw) 
+    target_link_libraries(SimpleEngine PRIVATE glfw)
 else()
     message(WARNING "GLFW not found by find_package(). Attempting manual linking.")
-    
+
     # Define the path to your GLFW library file (e.g., third_party/glfw/lib/glfw3.lib)
     set(GLFW_LIBRARY_FILE ${THIRD_PARTY_DIR}/glfw/lib/glfw3.lib)
-    
+
     if(EXISTS ${GLFW_LIBRARY_FILE})
         message(STATUS "Manually linking GLFW library: ${GLFW_LIBRARY_FILE}")
         target_link_libraries(SimpleEngine PRIVATE ${GLFW_LIBRARY_FILE})
@@ -71,24 +72,23 @@ if (APPLE)
 endif()
 
 # --- Shader Files ---
-# Copy shader files from assets/shaders/ to the build output directory
+# Copy shader files from assets/shaders/ to the build output directory's "shaders" subfolder
 set(SHADER_FILES
     ${PROJECT_ASSETS_DIR}/shaders/triangle.vert
     ${PROJECT_ASSETS_DIR}/shaders/triangle.frag
 )
 
 foreach(SHADER_FILE_PATH ${SHADER_FILES})
-    # Get just the filename from the full path
     get_filename_component(SHADER_FILENAME ${SHADER_FILE_PATH} NAME)
-    
+
     if(NOT EXISTS ${SHADER_FILE_PATH})
         message(WARNING "Shader source file not found: ${SHADER_FILE_PATH}. It will not be copied.")
     else()
         add_custom_command(
             TARGET SimpleEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${SHADER_FILE_PATH}"                         # Source (full path to shader)
-            "$<TARGET_FILE_DIR:SimpleEngine>/shaders/${SHADER_FILENAME}" # Destination (e.g., build/Debug/shaders/triangle.vert)
+            "${SHADER_FILE_PATH}"
+            "$<TARGET_FILE_DIR:SimpleEngine>/shaders/${SHADER_FILENAME}" # Destination
             COMMENT "Copying shader: ${SHADER_FILENAME} to shaders/ subdirectory"
         )
     endif()

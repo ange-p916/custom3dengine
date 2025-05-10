@@ -1,4 +1,5 @@
 C:\dev\MyFirstEngine\MyFirstEngine\src\main.cpp;C:\dev\MyFirstEngine\MyFirstEngine\build\SimpleEngine.dir\Debug\main.obj
 C:\dev\MyFirstEngine\MyFirstEngine\src\Renderer.cpp;C:\dev\MyFirstEngine\MyFirstEngine\build\SimpleEngine.dir\Debug\Renderer.obj
 C:\dev\MyFirstEngine\MyFirstEngine\src\Shader.cpp;C:\dev\MyFirstEngine\MyFirstEngine\build\SimpleEngine.dir\Debug\Shader.obj
+C:\dev\MyFirstEngine\MyFirstEngine\src\Camera.cpp;C:\dev\MyFirstEngine\MyFirstEngine\build\SimpleEngine.dir\Debug\Camera.obj
 C:\dev\MyFirstEngine\MyFirstEngine\src\glad.c;C:\dev\MyFirstEngine\MyFirstEngine\build\SimpleEngine.dir\Debug\glad.obj

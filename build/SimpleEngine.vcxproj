@@ -404,6 +404,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\main.cpp" />
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Renderer.cpp" />
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Shader.cpp" />
+    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Camera.cpp" />
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\glad.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <FileType>CppCode</FileType>

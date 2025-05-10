@@ -1,23 +1,27 @@
 // triangle.vert
-// Vertex Shader with color attribute.
+// Vertex Shader with MVP matrices for 3D camera.
 
-#version 330 core // Specify GLSL version 3.30, core profile
+#version 330 core
 
-// Input vertex data
-// Location 0: Position attribute
-layout (location = 0) in vec3 aPos; 
-// Location 1: Color attribute
-layout (location = 1) in vec3 aColor; 
+// Input vertex attributes
+layout (location = 0) in vec3 aPos;   // Vertex position in model space
+layout (location = 1) in vec3 aColor; // Vertex color
 
-// Output variable to pass color to the fragment shader
-// OpenGL will interpolate this value across the triangle's surface.
-out vec3 vertexColor; 
+// Uniforms for transformation matrices
+uniform mat4 model;       // Model matrix (object's position, rotation, scale in world)
+uniform mat4 view;        // View matrix (camera's position and orientation)
+uniform mat4 projection;  // Projection matrix (perspective, field of view)
+
+// Output to fragment shader
+out vec3 vertexColor;
 
 void main()
 {
-    // Pass position to clip-space
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    // Transform vertex position from model space to clip space:
+    // gl_Position = projection * view * model * vec4(aPos, 1.0);
+    // The 'uOffset' is now handled by the 'model' matrix.
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
     
-    // Pass the color attribute directly to the fragment shader
+    // Pass color through
     vertexColor = aColor;
 }

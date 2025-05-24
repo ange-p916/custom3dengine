@@ -2,77 +2,80 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project name (this will also be the default name for your .sln file and executable)
-project(SimpleEngine LANGUAGES CXX)
+project(SimpleEngine LANGUAGES CXX C) # <--- MODIFIED HERE
 
 # Set C++ standard (e.g., C++17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Set C standard (optional, but good practice if you have C files)
+set(CMAKE_C_STANDARD 11) # Or C99, C17 etc.
+set(CMAKE_C_STANDARD_REQUIRED True)
+set(CMAKE_C_EXTENSIONS OFF)
+
 
 # --- Define Project Structure Variables (for clarity) ---
-# CMAKE_CURRENT_SOURCE_DIR is the directory where this CMakeLists.txt is located
-set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(PROJECT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(PROJECT_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
-set(THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
-
-# --- Include Directories ---
-# For your project's headers (e.g., include/MyFirstEngine/GameObject.h)
-include_directories(${PROJECT_INCLUDE_DIR})
-
-# For GLAD headers (e.g., third_party/glad/include/glad/glad.h)
-include_directories(${THIRD_PARTY_DIR}/glad/include)
-
-# For GLFW headers (e.g., third_party/glfw/include/GLFW/glfw3.h)
-include_directories(${THIRD_PARTY_DIR}/glfw/include)
-
+set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(PROJECT_SOURCE_DIR ${PROJECT_ROOT_DIR}/src)
+set(PROJECT_INCLUDE_DIR ${PROJECT_ROOT_DIR}/include)
+set(PROJECT_ASSETS_DIR ${PROJECT_ROOT_DIR}/assets)
+set(THIRD_PARTY_DIR ${PROJECT_ROOT_DIR}/third_party)
 
 # --- Source Files ---
-# Add all your .cpp source files from the src/ directory
-# Also include glad.c from its new location
 add_executable(SimpleEngine
     ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/Renderer.cpp
     ${PROJECT_SOURCE_DIR}/Shader.cpp
-    ${PROJECT_SOURCE_DIR}/Camera.cpp  # <-- Added Camera.cpp
-    ${PROJECT_SOURCE_DIR}/glad.c
+    ${PROJECT_SOURCE_DIR}/Camera.cpp
+    ${PROJECT_SOURCE_DIR}/glad.c  # This should now be handled correctly
+)
+
+# --- Include Directories for SimpleEngine ---
+target_include_directories(SimpleEngine PRIVATE
+    ${PROJECT_INCLUDE_DIR}
+    ${THIRD_PARTY_DIR}/glad/include
 )
 
 # --- Find and Link Libraries ---
-
-# Find OpenGL (typically part of the system)
 find_package(OpenGL REQUIRED)
+target_link_libraries(SimpleEngine PRIVATE OpenGL::GL)
 
-# Find GLFW - Try to find it, but don't fail immediately if not found
-find_package(glfw3)
-
+find_package(glfw3 QUIET)
 if (glfw3_FOUND)
-    message(STATUS "Found GLFW via find_package(). Linking automatically.")
+    message(STATUS "Found system GLFW via find_package(). Linking target 'glfw'.")
     target_link_libraries(SimpleEngine PRIVATE glfw)
 else()
-    message(WARNING "GLFW not found by find_package(). Attempting manual linking.")
+    message(STATUS "System GLFW not found by find_package(). Attempting to use bundled GLFW.")
+    set(BUNDLED_GLFW_INCLUDE_DIR ${THIRD_PARTY_DIR}/glfw/include)
+    set(BUNDLED_GLFW_LIBRARY_FILE ${THIRD_PARTY_DIR}/glfw/lib/glfw3.lib)
 
-    # Define the path to your GLFW library file (e.g., third_party/glfw/lib/glfw3.lib)
-    set(GLFW_LIBRARY_FILE ${THIRD_PARTY_DIR}/glfw/lib/glfw3.lib)
-
-    if(EXISTS ${GLFW_LIBRARY_FILE})
-        message(STATUS "Manually linking GLFW library: ${GLFW_LIBRARY_FILE}")
-        target_link_libraries(SimpleEngine PRIVATE ${GLFW_LIBRARY_FILE})
-    else()
-        message(FATAL_ERROR "Manual GLFW linking failed: Library not found at ${GLFW_LIBRARY_FILE}. "
-                            "Please check the path and ensure the library file exists.")
+    if(NOT EXISTS ${BUNDLED_GLFW_INCLUDE_DIR})
+        message(FATAL_ERROR "Bundled GLFW include directory not found: ${BUNDLED_GLFW_INCLUDE_DIR}")
     endif()
-endif()
+    if(NOT EXISTS ${BUNDLED_GLFW_LIBRARY_FILE})
+        message(FATAL_ERROR "Bundled GLFW library file not found: ${BUNDLED_GLFW_LIBRARY_FILE}")
+    endif()
 
-# Link OpenGL to your executable
-target_link_libraries(SimpleEngine PRIVATE OpenGL::GL)
+    message(STATUS "Using bundled GLFW: ${BUNDLED_GLFW_LIBRARY_FILE}")
+    add_library(glfw_bundled STATIC IMPORTED)
+    set_target_properties(glfw_bundled PROPERTIES
+        IMPORTED_LOCATION "${BUNDLED_GLFW_LIBRARY_FILE}"
+        INTERFACE_INCLUDE_DIRECTORIES "${BUNDLED_GLFW_INCLUDE_DIR}"
+    )
+    target_link_libraries(SimpleEngine PRIVATE glfw_bundled)
+endif()
 
 # --- Platform Specifics ---
 if (APPLE)
     target_link_libraries(SimpleEngine PRIVATE "-framework Cocoa -framework IOKit -framework CoreVideo")
 endif()
+if (WIN32)
+    # target_link_libraries(SimpleEngine PRIVATE gdi32 user32 shell32)
+endif()
 
 # --- Shader Files ---
-# Copy shader files from assets/shaders/ to the build output directory's "shaders" subfolder
+# ... (rest of your CMakeLists.txt is fine) ...
 set(SHADER_FILES
     ${PROJECT_ASSETS_DIR}/shaders/triangle.vert
     ${PROJECT_ASSETS_DIR}/shaders/triangle.frag
@@ -88,15 +91,14 @@ foreach(SHADER_FILE_PATH ${SHADER_FILES})
             TARGET SimpleEngine POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${SHADER_FILE_PATH}"
-            "$<TARGET_FILE_DIR:SimpleEngine>/shaders/${SHADER_FILENAME}" # Destination
+            "$<TARGET_FILE_DIR:SimpleEngine>/shaders/${SHADER_FILENAME}"
             COMMENT "Copying shader: ${SHADER_FILENAME} to shaders/ subdirectory"
         )
     endif()
 endforeach()
 
-# --- Output ---
 message(STATUS "CMake configuration complete for SimpleEngine.")
+message(STATUS "Project Root directory: ${PROJECT_ROOT_DIR}")
 message(STATUS "Build directory: ${CMAKE_BINARY_DIR}")
-message(STATUS "Source directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 message(STATUS "Executable will be: $<TARGET_FILE:SimpleEngine>")
 message(STATUS "Shaders will be copied to: $<TARGET_FILE_DIR:SimpleEngine>/shaders/")

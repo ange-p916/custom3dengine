@@ -1,0 +1,29 @@
+#ifndef FRAMEBUFFER_H
+#define FRAMEBUFFER_H
+
+#include "glad/glad.h"
+
+class Framebuffer {
+public:
+    Framebuffer(int width, int height);
+    ~Framebuffer();
+
+    void bind();
+    void unbind();
+    void resize(int width, int height);
+
+    GLuint getColorTexture() const { return colorTexture; }
+    int getWidth() const { return fboWidth; }
+    int getHeight() const { return fboHeight; }
+
+private:
+    void create();
+    void destroy();
+
+    GLuint fboID;
+    GLuint colorTexture;
+    GLuint depthRenderbuffer; // Or depth texture
+    int fboWidth, fboHeight;
+};
+
+#endif // FRAMEBUFFER_H

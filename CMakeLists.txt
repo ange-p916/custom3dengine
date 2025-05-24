@@ -2,15 +2,15 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Project name (this will also be the default name for your .sln file and executable)
-project(SimpleEngine LANGUAGES CXX C) # <--- MODIFIED HERE
+project(SimpleEngine LANGUAGES CXX C)
 
 # Set C++ standard (e.g., C++17)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set C standard (optional, but good practice if you have C files)
-set(CMAKE_C_STANDARD 11) # Or C99, C17 etc.
+# Set C standard
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 set(CMAKE_C_EXTENSIONS OFF)
 
@@ -28,8 +28,12 @@ add_executable(SimpleEngine
     ${PROJECT_SOURCE_DIR}/Renderer.cpp
     ${PROJECT_SOURCE_DIR}/Shader.cpp
     ${PROJECT_SOURCE_DIR}/Camera.cpp
-    ${PROJECT_SOURCE_DIR}/glad.c  # This should now be handled correctly
+    ${PROJECT_SOURCE_DIR}/glad.c
+    ${PROJECT_SOURCE_DIR}/Framebuffer.cpp
 )
+
+# Define BUNDLED_GLFW_INCLUDE_DIR early for use by ImGuiLib
+set(BUNDLED_GLFW_INCLUDE_DIR ${THIRD_PARTY_DIR}/glfw/include) # Moved up
 
 # --- Include Directories for SimpleEngine ---
 target_include_directories(SimpleEngine PRIVATE
@@ -41,13 +45,14 @@ target_include_directories(SimpleEngine PRIVATE
 find_package(OpenGL REQUIRED)
 target_link_libraries(SimpleEngine PRIVATE OpenGL::GL)
 
+# --- GLFW ---
 find_package(glfw3 QUIET)
 if (glfw3_FOUND)
     message(STATUS "Found system GLFW via find_package(). Linking target 'glfw'.")
     target_link_libraries(SimpleEngine PRIVATE glfw)
 else()
     message(STATUS "System GLFW not found by find_package(). Attempting to use bundled GLFW.")
-    set(BUNDLED_GLFW_INCLUDE_DIR ${THIRD_PARTY_DIR}/glfw/include)
+    # BUNDLED_GLFW_INCLUDE_DIR already set
     set(BUNDLED_GLFW_LIBRARY_FILE ${THIRD_PARTY_DIR}/glfw/lib/glfw3.lib)
 
     if(NOT EXISTS ${BUNDLED_GLFW_INCLUDE_DIR})
@@ -66,24 +71,37 @@ else()
     target_link_libraries(SimpleEngine PRIVATE glfw_bundled)
 endif()
 
+# --- Dear ImGui ---
+set(IMGUI_DIR ${THIRD_PARTY_DIR}/imgui)
+add_library(ImGuiLib STATIC
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui_demo.cpp       # <-- ADD THIS LINE
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(ImGuiLib PUBLIC
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+    ${BUNDLED_GLFW_INCLUDE_DIR}
+)
+target_link_libraries(SimpleEngine PRIVATE ImGuiLib)
+
+
 # --- Platform Specifics ---
 if (APPLE)
     target_link_libraries(SimpleEngine PRIVATE "-framework Cocoa -framework IOKit -framework CoreVideo")
 endif()
-if (WIN32)
-    # target_link_libraries(SimpleEngine PRIVATE gdi32 user32 shell32)
-endif()
 
 # --- Shader Files ---
-# ... (rest of your CMakeLists.txt is fine) ...
 set(SHADER_FILES
     ${PROJECT_ASSETS_DIR}/shaders/triangle.vert
     ${PROJECT_ASSETS_DIR}/shaders/triangle.frag
 )
-
 foreach(SHADER_FILE_PATH ${SHADER_FILES})
     get_filename_component(SHADER_FILENAME ${SHADER_FILE_PATH} NAME)
-
     if(NOT EXISTS ${SHADER_FILE_PATH})
         message(WARNING "Shader source file not found: ${SHADER_FILE_PATH}. It will not be copied.")
     else()

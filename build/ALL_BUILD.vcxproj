@@ -173,6 +173,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="C:\dev\MyFirstEngine\MyFirstEngine\build\ImGuiLib.vcxproj">
+      <Project>{A3E46993-96E2-37D0-B9BE-A66CF3C54236}</Project>
+      <Name>ImGuiLib</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\dev\MyFirstEngine\MyFirstEngine\build\SimpleEngine.vcxproj">
       <Project>{22AA352D-73CB-3D7B-A2D0-7730EABF465A}</Project>
       <Name>SimpleEngine</Name>

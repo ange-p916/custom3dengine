@@ -1,0 +1,79 @@
+#include "MyFirstEngine/Framebuffer.h"
+#include <iostream>
+
+Framebuffer::Framebuffer(int width, int height) : fboID(0), colorTexture(0), depthRenderbuffer(0), fboWidth(width), fboHeight(height) {
+    create();
+}
+
+Framebuffer::~Framebuffer() {
+    destroy();
+}
+
+void Framebuffer::create() {
+    destroy(); // Clean up old ones if any
+
+    if (fboWidth <= 0 || fboHeight <= 0) {
+        std::cerr << "Framebuffer Error: Invalid dimensions (" << fboWidth << "x" << fboHeight << ")" << std::endl;
+        return;
+    }
+
+    glGenFramebuffers(1, &fboID);
+    glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+
+    // Color texture attachment
+    glGenTextures(1, &colorTexture);
+    glBindTexture(GL_TEXTURE_2D, colorTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, fboWidth, fboHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0); // Unbind
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+
+    // Depth renderbuffer attachment (could also be a depth texture)
+    glGenRenderbuffers(1, &depthRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, fboWidth, fboHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0); // Unbind
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "Framebuffer Error: Framebuffer is not complete!" << std::endl;
+        destroy(); // Clean up on failure
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // Unbind FBO
+}
+
+void Framebuffer::destroy() {
+    if (fboID) {
+        glDeleteFramebuffers(1, &fboID);
+        fboID = 0;
+    }
+    if (colorTexture) {
+        glDeleteTextures(1, &colorTexture);
+        colorTexture = 0;
+    }
+    if (depthRenderbuffer) {
+        glDeleteRenderbuffers(1, &depthRenderbuffer);
+        depthRenderbuffer = 0;
+    }
+}
+
+void Framebuffer::bind() {
+    glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+    glViewport(0, 0, fboWidth, fboHeight); // Set viewport to FBO size
+}
+
+void Framebuffer::unbind() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Restore main window viewport if needed, or let the main loop handle it
+}
+
+void Framebuffer::resize(int width, int height) {
+    if (width <= 0 || height <= 0) return;
+    if (fboWidth != width || fboHeight != height) {
+        fboWidth = width;
+        fboHeight = height;
+        create(); // Recreate with new dimensions
+    }
+}

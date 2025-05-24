@@ -86,7 +86,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/dev/MyFirstEngine/MyFirstEngine/third_party/glfw/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -107,10 +107,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -139,7 +139,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;Debug\ImGuiLib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -154,7 +154,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/dev/MyFirstEngine/MyFirstEngine/third_party/glfw/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -175,10 +175,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -207,7 +207,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;Release\ImGuiLib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -222,7 +222,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/dev/MyFirstEngine/MyFirstEngine/third_party/glfw/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -243,10 +243,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -275,7 +275,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;MinSizeRel\ImGuiLib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -290,7 +290,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions) /external:I "C:/dev/MyFirstEngine/MyFirstEngine/third_party/glfw/include"</AdditionalOptions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -310,10 +310,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\dev\MyFirstEngine\MyFirstEngine\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glad\include;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui;C:\dev\MyFirstEngine\MyFirstEngine\third_party\imgui\backends;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -342,7 +342,7 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd</Command>
     </PostBuildEvent>
     <Link>
-      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;C:\dev\MyFirstEngine\MyFirstEngine\third_party\glfw\lib\glfw3.lib;RelWithDebInfo\ImGuiLib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -418,6 +418,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Shader.cpp" />
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Camera.cpp" />
     <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\glad.c" />
+    <ClCompile Include="C:\dev\MyFirstEngine\MyFirstEngine\src\Framebuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\dev\MyFirstEngine\MyFirstEngine\build\ZERO_CHECK.vcxproj">
@@ -425,6 +426,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\dev\MyFirstEngine\MyFirstEngine\build\ImGuiLib.vcxproj">
+      <Project>{A3E46993-96E2-37D0-B9BE-A66CF3C54236}</Project>
+      <Name>ImGuiLib</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

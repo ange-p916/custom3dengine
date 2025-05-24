@@ -1,205 +1,274 @@
-// main.cpp
-// Entry point of the application.
-// Initializes GLFW, GLAD, creates a window, sets up the Renderer and Camera,
-// handles user input for camera control, and runs the main game/render loop.
+#include <iostream>
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
 
-#include <iostream>          // For std::cout, std::cerr
-#include "glad/glad.h"       // GLAD (OpenGL Loader) - Must be included before GLFW
-#include <GLFW/glfw3.h>      // GLFW (Windowing and Input Library)
-
-// Engine-specific headers (adjust paths if your structure is different)
-// Assuming .h files are in include/MyFirstEngine/ and SimpleMath.h is in include/
+// Engine-specific headers
 #include "MyFirstEngine/Renderer.h"
-#include "MyFirstEngine/GameObject.h" // Though GameObject itself isn't heavily used in this camera demo
+#include "MyFirstEngine/GameObject.h"
 #include "MyFirstEngine/Camera.h"
-#include "SimpleMath.h"          // For Mat4::translate (used for model matrix)
+#include "MyFirstEngine/Framebuffer.h"
+#include "SimpleMath.h"
 
-// Window dimensions (can be modified by framebuffer_size_callback)
-unsigned int SCR_WIDTH = 800;
-unsigned int SCR_HEIGHT = 600;
+// ImGui Headers
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
-// Camera setup
-// Initial camera position is (0,0,3) looking towards (0,0,0) with (0,1,0) as up.
-Camera camera(Vec3(0.0f, 0.0f, 3.0f));
-// Variables for mouse input handling
-float lastX = SCR_WIDTH / 2.0f;  // Initial mouse X position (center of screen)
-float lastY = SCR_HEIGHT / 2.0f; // Initial mouse Y position (center of screen)
-bool firstMouse = true;          // Flag to handle the first mouse movement smoothly
+// Window dimensions
+unsigned int SCR_WIDTH = 1280;
+unsigned int SCR_HEIGHT = 720;
 
-// Timing variables for frame-rate independent movement
-float deltaTime = 0.0f; // Time between current frame and last frame
-float lastFrame = 0.0f; // Time of last frame
+Camera camera(Vec3(0.0f, 1.0f, 5.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
 
-// A sample game object (our triangle)
-GameObject triangleObject(0, "MyTriangle"); // ID 0, name "MyTriangle"
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
-// GLFW: Callback function for window resize events
+GameObject triangleObject(0, "MyTriangle");
+
+Framebuffer* sceneFramebuffer = nullptr;
+ImVec2 sceneViewSize(1, 1);
+bool sceneViewFocused = false;
+bool sceneViewHovered = false;
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height); // Update OpenGL viewport
-    SCR_WIDTH = width;               // Update global width variable for aspect ratio calculation
-    SCR_HEIGHT = height;             // Update global height variable
+    glViewport(0, 0, width, height);
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
 }
 
-// Processes keyboard input for camera movement and exiting the application
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true); // Close window on ESC
+        glfwSetWindowShouldClose(window, true);
 
-    // Camera movement based on deltaTime for frame-rate independence
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.processKeyboard("FORWARD", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.processKeyboard("BACKWARD", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.processKeyboard("LEFT", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.processKeyboard("RIGHT", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // Move camera up
-        camera.processKeyboard("UP", deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) // Move camera down
-        camera.processKeyboard("DOWN", deltaTime);
-
-    // Optional: If you want to move the triangle object itself with arrow keys
-    // float objectMoveSpeed = 1.0f * deltaTime;
-    // if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-    //     triangleObject.transform.position.y += objectMoveSpeed;
-    // if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-    //     triangleObject.transform.position.y -= objectMoveSpeed;
-    // if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-    //     triangleObject.transform.position.x -= objectMoveSpeed;
-    // if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-    //     triangleObject.transform.position.x += objectMoveSpeed;
+    ImGuiIO& io = ImGui::GetIO();
+    if (!io.WantCaptureKeyboard || sceneViewFocused) {
+        if (sceneViewFocused) {
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.processKeyboard("FORWARD", deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.processKeyboard("BACKWARD", deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.processKeyboard("LEFT", deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.processKeyboard("RIGHT", deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) camera.processKeyboard("UP", deltaTime);
+            if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) camera.processKeyboard("DOWN", deltaTime);
+        }
+    }
 }
 
-// GLFW: Callback function for mouse movement events
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse) {
+        bool canControlCamera = ImGui::IsMouseDown(ImGuiMouseButton_Right) && sceneViewHovered;
+        if (!canControlCamera) {
+            firstMouse = true;
+            return;
+        }
+    }
+
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    // Prevent large jump on first mouse input
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
         firstMouse = false;
     }
 
-    // Calculate the offset movement between the last frame and current frame
     float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // Reversed since y-coordinates range from bottom to top
-
-    lastX = xpos; // Update last mouse position
+    float yoffset = lastY - ypos;
+    lastX = xpos;
     lastY = ypos;
 
-    // Process mouse movement to adjust camera orientation
-    camera.processMouseMovement(xoffset, yoffset);
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && sceneViewHovered) {
+        camera.processMouseMovement(xoffset, yoffset);
+    } else {
+        firstMouse = true;
+    }
 }
 
-// GLFW: Callback function for mouse scroll wheel events
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    // Process scroll to adjust camera FOV (zoom)
-    camera.processMouseScroll(static_cast<float>(yoffset)); // yoffset indicates vertical scroll
-}
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantCaptureMouse && !sceneViewHovered)
+        return;
 
+    if (sceneViewHovered) {
+        camera.processMouseScroll(static_cast<float>(yoffset));
+    }
+}
 
 int main() {
-    // --- 1. Initialize GLFW ---
-    if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return -1;
-    }
-    // Configure GLFW to use OpenGL 3.3 Core Profile
+    if (!glfwInit()) { /* ... error ... */ return -1; }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__ // Required for macOS
+#ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-    // --- 2. Create GLFW Window ---
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "SimpleEngine - 3D Camera", NULL, NULL);
-    if (window == NULL) {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "SimpleEngine Editor", NULL, NULL);
+    if (!window) { /* ... error ... */ glfwTerminate(); return -1; }
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { /* ... error ... */ return -1; }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+#ifdef ImGuiConfigFlags_DockingEnable // Check if the flag exists
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+#endif
+#ifdef ImGuiConfigFlags_ViewportsEnable // Check if the flag exists
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+#endif
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+
+    ImGui::StyleColorsDark();
+#ifdef ImGuiConfigFlags_ViewportsEnable
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
-    glfwMakeContextCurrent(window); // Make the window's context current for this thread
+#endif
 
-    // Register callback functions
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // For window resize
-    glfwSetCursorPosCallback(window, mouse_callback);                 // For mouse movement
-    glfwSetScrollCallback(window, scroll_callback);                   // For mouse scroll
+    const char* glsl_version = "#version 330 core";
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Tell GLFW to capture the mouse cursor (hides it and keeps it centered)
-    // This is ideal for FPS-style camera controls.
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    // --- 3. Initialize GLAD ---
-    // GLAD loads OpenGL function pointers
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    // --- 4. Initialize Renderer ---
     Renderer renderer;
-    if (!renderer.init()) { // Renderer::init() now enables depth testing
-        std::cerr << "Failed to initialize renderer" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-
-    // Set initial position for our triangle object (if you want it somewhere other than origin)
-    // For this demo, the triangle will be at the world origin.
+    if (!renderer.init()) { /* ... error ... */ return -1; }
     triangleObject.transform.position = Vec3(0.0f, 0.0f, 0.0f);
-    // You can place multiple objects by creating more GameObject instances
-    // and drawing them with different model matrices.
+    sceneFramebuffer = new Framebuffer(static_cast<int>(sceneViewSize.x), static_cast<int>(sceneViewSize.y));
 
-    // --- 5. Main Game Loop ---
     while (!glfwWindowShouldClose(window)) {
-        // --- a. Calculate DeltaTime ---
-        // Time logic for frame-rate independent movement and animations
+        glfwPollEvents(); // Poll events early
+
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
-        // --- b. Process Input ---
         processInput(window);
 
-        // --- c. Update Game Logic ---
-        // (e.g., physics, animations, AI - not implemented in this simple demo)
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-        // --- d. Render ---
-        // Create model matrix for the triangle object.
-        // This matrix transforms the triangle from its local space to world space.
-        // For now, it only applies the translation from the object's transform.
-        Mat4 modelMatrix = Mat4::translate(triangleObject.transform.position);
-        // To add rotation and scale:
-        // Mat4 scaleMatrix = Mat4::scale(triangleObject.transform.scale);
-        // Mat4 rotationX = Mat4::rotateX(triangleObject.transform.rotation.x); // Assuming rotate functions in Mat4
-        // Mat4 rotationY = Mat4::rotateY(triangleObject.transform.rotation.y);
-        // Mat4 rotationZ = Mat4::rotateZ(triangleObject.transform.rotation.z);
-        // modelMatrix = Mat4::translate(triangleObject.transform.position) * rotationZ * rotationY * rotationX * scaleMatrix;
+        // Setup Dockspace
+#ifdef ImGuiConfigFlags_DockingEnable // Check if docking is available/enabled
+        if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+            ImGuiViewport* viewport = ImGui::GetMainViewport();
+            ImGui::SetNextWindowPos(viewport->WorkPos);
+            ImGui::SetNextWindowSize(viewport->WorkSize);
+#ifdef IMGUI_HAS_VIEWPORT // ImGui::SetNextWindowViewport needs this
+            ImGui::SetNextWindowViewport(viewport->ID);
+#endif
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+            window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+#ifndef ImGuiWindowFlags_NoDocking // Check if this specific flag exists
+            window_flags |= ImGuiWindowFlags_NoDocking; 
+#endif
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+            ImGui::Begin("DockSpaceWindow", nullptr, window_flags);
+            ImGui::PopStyleVar();
+            ImGui::PopStyleVar(2);
+
+            ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+#ifdef IMGUI_HAS_DOCK // ImGui::DockSpace needs this
+    #ifdef ImGuiDockNodeFlags_PassthruCentralNode
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+    #else
+            ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), 0); // Fallback if flag doesn't exist
+    #endif
+#endif
+            ImGui::End();
+        }
+#endif // ImGuiConfigFlags_DockingEnable
 
 
-        // Get view and projection matrices from the camera
-        Mat4 viewMatrix = camera.getViewMatrix();
-        // Calculate aspect ratio based on current window size
-        float aspectRatio = static_cast<float>(SCR_WIDTH) / static_cast<float>(SCR_HEIGHT);
-        if (SCR_HEIGHT == 0) aspectRatio = 1.0f; // Avoid division by zero if window is minimized
-        Mat4 projectionMatrix = camera.getProjectionMatrix(aspectRatio);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::Begin("Scene View", nullptr, ImGuiWindowFlags_NoCollapse);
+        {
+            sceneViewFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+            sceneViewHovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
+            ImVec2 currentSceneViewSize = ImGui::GetContentRegionAvail();
+            if (currentSceneViewSize.x > 0 && currentSceneViewSize.y > 0 &&
+                (currentSceneViewSize.x != sceneViewSize.x || currentSceneViewSize.y != sceneViewSize.y)) {
+                sceneViewSize = currentSceneViewSize;
+                if (sceneFramebuffer) {
+                    sceneFramebuffer->resize(static_cast<int>(sceneViewSize.x), static_cast<int>(sceneViewSize.y));
+                }
+            }
+            if (sceneFramebuffer && sceneFramebuffer->getColorTexture() != 0 && sceneViewSize.x > 0 && sceneViewSize.y > 0) {
+                ImTextureID texture_id_to_render = (ImTextureID)(intptr_t)sceneFramebuffer->getColorTexture();
+                const ImVec2 image_display_size = sceneViewSize; // sceneViewSize is already ImVec2
+                const ImVec2 uv0 = ImVec2(0.0f, 1.0f); // Explicitly use floats
+                const ImVec2 uv1 = ImVec2(1.0f, 0.0f); // Explicitly use floats
 
-        // Call the renderer to draw the scene (our triangle)
-        renderer.draw(modelMatrix, viewMatrix, projectionMatrix);
+                ImGui::Image(texture_id_to_render, image_display_size, uv0, uv1);
+            }
+        }
+        ImGui::End();
+        ImGui::PopStyleVar();
 
-        // --- e. Swap Buffers and Poll Events ---
-        glfwSwapBuffers(window); // Swaps the front and back buffers (double buffering)
-        glfwPollEvents();        // Checks for and processes events (keyboard, mouse, window, etc.)
+        ImGui::Begin("Inspector");
+        {
+            ImGui::Text("Triangle Object"); ImGui::DragFloat3("Position##Tri", &triangleObject.transform.position.x, 0.01f);
+            ImGui::Separator();
+            ImGui::Text("Camera"); ImGui::Text("Pos: %.2f, %.2f, %.2f", camera.position.x, camera.position.y, camera.position.z);
+            ImGui::Text("Yaw: %.2f, Pitch: %.2f", camera.yaw, camera.pitch); ImGui::SliderFloat("FOV", &camera.fov, 1.0f, 120.0f);
+        }
+        ImGui::End();
+        ImGui::ShowDemoWindow();
+
+        if (sceneFramebuffer && sceneViewSize.x > 0 && sceneViewSize.y > 0) {
+            sceneFramebuffer->bind();
+            glEnable(GL_DEPTH_TEST);
+            glClearColor(0.1f, 0.12f, 0.15f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            Mat4 modelMatrix = Mat4::translate(triangleObject.transform.position);
+            Mat4 viewMatrix = camera.getViewMatrix();
+            float sceneAspectRatio = (sceneViewSize.y == 0) ? 1.0f : static_cast<float>(sceneViewSize.x) / static_cast<float>(sceneViewSize.y);
+            Mat4 projectionMatrix = camera.getProjectionMatrix(sceneAspectRatio);
+            renderer.draw(modelMatrix, viewMatrix, projectionMatrix);
+            sceneFramebuffer->unbind();
+        }
+
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Main window background, if desired
+        // glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+#ifdef ImGuiConfigFlags_ViewportsEnable
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+#ifdef IMGUI_HAS_VIEWPORT // ImGui::UpdatePlatformWindows and RenderPlatformWindowsDefault need this
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+#endif
+        }
+#endif
+
+        glfwSwapBuffers(window);
     }
 
-    // --- 6. Cleanup ---
-    // Renderer's destructor will clean up its resources (VAO, VBO, shader).
-    // Camera and GameObject are stack-allocated and will be cleaned up automatically.
-    glfwTerminate(); // Terminate GLFW, cleaning up all its resources
+    delete sceneFramebuffer;
+    sceneFramebuffer = nullptr;
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    glfwTerminate();
     return 0;
 }

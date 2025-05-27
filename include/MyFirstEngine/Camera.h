@@ -1,67 +1,65 @@
 // Camera.h
-// Defines a basic 3D camera capable of movement and orientation.
-// It generates View and Projection matrices for rendering.
-
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "../SimpleMath.h" // Path relative to include/MyFirstEngine/Camera.h
-                           // This includes Vec3 and Mat4 definitions.
+#include "../SimpleMath.h"
 
-// Forward declaration of GLFWwindow to avoid including glfw3.h in this header.
-// This is a good practice to reduce compile times and dependencies in headers.
-// The actual GLFWwindow pointer will be used in main.cpp.
-struct GLFWwindow;
+struct GLFWwindow; // Forward declaration
 
 class Camera {
 public:
     // Camera Attributes
-    Vec3 position;  // The camera's position in world space
-    Vec3 front;     // The direction the camera is looking (normalized)
-    Vec3 up;        // The camera's local up vector (calculated)
-    Vec3 right;     // The camera's local right vector (calculated)
-    Vec3 worldUp;   // A fixed up vector for the world (e.g., positive Y-axis)
+    Vec3 position;
+    Vec3 front;
+    Vec3 up;
+    Vec3 right;
+    Vec3 worldUp;
 
-    // Euler Angles for orientation
-    float yaw;      // Rotation around the Y-axis
-    float pitch;    // Rotation around the X-axis
+    // For Orbit Camera
+    Vec3 focalPoint;
+    float distanceToFocalPoint;
+
+    // Euler Angles (still useful for FPS or if you want to combine)
+    float yaw;
+    float pitch;
 
     // Camera options
-    float movementSpeed;    // Speed of camera movement
-    float mouseSensitivity; // How sensitive mouse movement is for looking around
-    float fov;              // Field of View in degrees (for perspective projection)
+    float movementSpeed;    // For FPS-style movement (can be kept for free-look)
+    float mouseSensitivity;
+    float orbitSensitivity; // New: for orbit speed
+    float panSensitivity;   // New: for pan speed
+    float zoomSensitivity;  // New: for zoom speed
+    float fov;
 
-    // Constructor with initial values
-    // Yaw is typically initialized to -90.0 degrees to look along the negative Z-axis.
-    // Pitch is typically initialized to 0.0 degrees (looking straight ahead).
-    Camera(Vec3 position = Vec3(0.0f, 0.0f, 3.0f), // Default position
-           Vec3 up = Vec3(0.0f, 1.0f, 0.0f),      // Default world up vector
-           float yaw = -90.0f,
-           float pitch = 0.0f);
+    enum class ProjectionMode {
+        Perspective,
+        Orthographic // Future consideration
+    };
+    ProjectionMode projectionMode;
 
-    // Returns the view matrix calculated using the camera's current position and orientation
+
+    Camera(Vec3 position = Vec3(0.0f, 1.0f, 5.0f), // Adjusted default start
+           Vec3 focus = Vec3(0.0f, 0.0f, 0.0f),  // New: focal point
+           Vec3 up = Vec3(0.0f, 1.0f, 0.0f),
+           float initialYaw = -90.0f, float initialPitch = 0.0f);
+
     Mat4 getViewMatrix();
+    Mat4 getProjectionMatrix(float aspectRatio);
 
-    // Returns the projection matrix based on FOV, aspect ratio, and near/far planes
-    Mat4 getProjectionMatrix(float aspectRatio); // Aspect ratio (width / height)
+    // FPS-style movement (keep if you want a free-look mode)
+    void processKeyboardFPS(const char* direction, float deltaTime);
 
-    // Processes keyboard input for camera movement
-    // 'direction' can be "FORWARD", "BACKWARD", "LEFT", "RIGHT", "UP", "DOWN"
-    // 'deltaTime' is the time elapsed since the last frame, for frame-rate independent movement
-    void processKeyboard(const char* direction, float deltaTime);
+    // Editor camera controls
+    void processMouseOrbit(float xoffset, float yoffset);
+    void processMousePan(float xoffset, float yoffset);
+    void processMouseZoom(float yoffset); // Renamed from processMouseScroll for clarity
 
-    // Processes mouse movement input for camera orientation
-    // 'xoffset' and 'yoffset' are the changes in mouse position since the last frame
-    // 'constrainPitch' prevents the camera from flipping upside down
-    void processMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
-
-    // Processes mouse scroll wheel input, typically for zooming (adjusting FOV)
-    // 'yoffset' is the amount the scroll wheel has moved
-    void processMouseScroll(float yoffset);
+    // Updates camera vectors based on current mode (FPS or Orbit)
+    void updateCameraVectors(); // This will need to be smarter or have different versions
 
 private:
-    // Recalculates the 'front', 'right', and 'up' vectors based on the current 'yaw' and 'pitch'
-    void updateCameraVectors();
+    void updateOrbitingCameraVectors(); // Helper for orbit mode
+    void updateFPSCameraVectors();      // Helper for FPS mode (your old updateCameraVectors)
 };
 
 #endif // CAMERA_H

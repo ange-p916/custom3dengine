@@ -1,0 +1,71 @@
+@echo off
+setlocal
+
+REM --- Configuration ---
+SET BUILD_DIR_NAME=build
+SET CMAKE_GENERATOR_NAME="Visual Studio 17 2022"
+SET SOLUTION_FILE_NAME=SimpleEngine.sln
+REM --- End Configuration ---
+
+echo --- Cleaning up previous build directory ---
+if exist "%BUILD_DIR_NAME%" (
+    echo Deleting "%BUILD_DIR_NAME%" directory...
+    rmdir /S /Q "%BUILD_DIR_NAME%"
+    if errorlevel 1 (
+        echo Failed to delete "%BUILD_DIR_NAME%". It might be in use.
+        echo Please close any programs using files in this directory (like Visual Studio or your running app).
+        pause
+        exit /b 1
+    )
+    echo Old build directory deleted.
+    REM Wait a bit for file system to catch up, especially if VS was open
+    timeout /t 2 /nobreak > nul
+) else (
+    echo No existing "%BUILD_DIR_NAME%" directory to delete.
+)
+
+echo.
+echo --- Creating new build directory ---
+mkdir "%BUILD_DIR_NAME%"
+if errorlevel 1 (
+    echo Failed to create "%BUILD_DIR_NAME%" directory.
+    pause
+    exit /b 1
+)
+cd "%BUILD_DIR_NAME%"
+if errorlevel 1 (
+    echo Failed to change directory to "%BUILD_DIR_NAME%".
+    pause
+    exit /b 1
+)
+
+
+echo.
+echo --- Running CMake to generate Visual Studio solution ---
+echo Using generator: %CMAKE_GENERATOR_NAME%
+cmake .. -G %CMAKE_GENERATOR_NAME%
+if errorlevel 1 (
+    echo CMake configuration failed.
+    pause
+    exit /b 1
+)
+echo CMake configuration successful.
+
+echo.
+REM Wait a bit before trying to open the solution
+timeout /t 2 /nobreak > nul
+
+echo --- Opening Visual Studio Solution ---
+if exist "%SOLUTION_FILE_NAME%" (
+    echo Opening %SOLUTION_FILE_NAME%...
+    start "" "%SOLUTION_FILE_NAME%"
+) else (
+    echo ERROR: Solution file "%SOLUTION_FILE_NAME%" not found in build directory!
+    echo CMake might have failed to generate it, or the project name is different.
+    pause
+)
+
+echo.
+echo Script finished.
+cd .. REM Go back to the root directory from build directory
+endlocal

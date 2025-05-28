@@ -1,8 +1,7 @@
-// Camera.h
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "../SimpleMath.h"
+#include "../SimpleMath.h" // Assuming SimpleMath.h is in include/
 
 struct GLFWwindow; // Forward declaration
 
@@ -10,26 +9,26 @@ class Camera {
 public:
     // Camera Attributes
     Vec3 position;
-    Vec3 front;
-    Vec3 up;
-    Vec3 right;
-    Vec3 worldUp;
+    Vec3 front; // Direction camera is looking (normalized)
+    Vec3 up;    // Camera's local up vector (orthogonal to front and right)
+    Vec3 right; // Camera's local right vector (orthogonal to front and up)
+    Vec3 worldUp; // Fixed world up direction (e.g., 0,1,0)
 
     // For Orbit Camera
     Vec3 focalPoint;
     float distanceToFocalPoint;
 
-    // Euler Angles (still useful for FPS or if you want to combine)
-    float yaw;
-    float pitch;
+    // Euler Angles (representing camera's orientation around focal point for orbit)
+    float yaw;   // Rotation around world Y-axis (degrees)
+    float pitch; // Elevation from XZ plane of focal point (degrees)
 
     // Camera options
-    float movementSpeed;    // For FPS-style movement (can be kept for free-look)
-    float mouseSensitivity;
-    float orbitSensitivity; // New: for orbit speed
-    float panSensitivity;   // New: for pan speed
-    float zoomSensitivity;  // New: for zoom speed
-    float fov;
+    float movementSpeed;    // For FPS-style movement
+    float mouseSensitivity; // General sensitivity for FPS-like direct control
+    float orbitSensitivity; // Sensitivity for orbiting with mouse
+    float panSensitivity;   // Sensitivity for panning with mouse
+    float zoomSensitivity;  // Sensitivity for zooming with scroll wheel
+    float fov;              // Field of View in degrees
 
     enum class ProjectionMode {
         Perspective,
@@ -38,28 +37,26 @@ public:
     ProjectionMode projectionMode;
 
 
-    Camera(Vec3 position = Vec3(0.0f, 1.0f, 5.0f), // Adjusted default start
-           Vec3 focus = Vec3(0.0f, 0.0f, 0.0f),  // New: focal point
-           Vec3 up = Vec3(0.0f, 1.0f, 0.0f),
-           float initialYaw = -90.0f, float initialPitch = 0.0f);
+    Camera(Vec3 initialPosition = Vec3(0.0f, 2.0f, 7.0f),
+           Vec3 initialFocalPoint = Vec3(0.0f, 0.5f, 0.0f),
+           Vec3 worldUpDirection = Vec3(0.0f, 1.0f, 0.0f));
 
     Mat4 getViewMatrix();
     Mat4 getProjectionMatrix(float aspectRatio);
 
-    // FPS-style movement (keep if you want a free-look mode)
+    // FPS-style movement (for free-look when scene view is focused)
     void processKeyboardFPS(const char* direction, float deltaTime);
 
-    // Editor camera controls
+    // Editor camera controls (orbit, pan, zoom around/relative to focalPoint)
     void processMouseOrbit(float xoffset, float yoffset);
     void processMousePan(float xoffset, float yoffset);
-    void processMouseZoom(float yoffset); // Renamed from processMouseScroll for clarity
+    void processMouseZoom(float yoffsetScroll); // yoffsetScroll from mouse wheel
 
-    // Updates camera vectors based on current mode (FPS or Orbit)
-    void updateCameraVectors(); // This will need to be smarter or have different versions
+    // Updates camera vectors based on focalPoint, distanceToFocalPoint, yaw, and pitch
+    void updateCameraVectors();
 
-private:
-    void updateOrbitingCameraVectors(); // Helper for orbit mode
-    void updateFPSCameraVectors();      // Helper for FPS mode (your old updateCameraVectors)
+    // Call this if focal point is changed externally (e.g., selecting an object)
+    void setFocalPoint(const Vec3& newFocalPoint);
 };
 
 #endif // CAMERA_H

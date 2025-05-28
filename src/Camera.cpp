@@ -1,153 +1,204 @@
-// Camera.cpp
-#include "MyFirstEngine/Camera.h"
+#include "MyFirstEngine/Camera.h" // Adjust path if necessary
 #include <cmath>
-#include <algorithm>
-#include <cstring> // For strcmp in processKeyboardFPS
-#include <iostream>
+#include <algorithm> // For std::max, std::min
+#include <cstring>   // For strcmp
+#include <iostream>  // For debugging (optional)
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+    #define M_PI 3.14159265358979323846
 #endif
 
-// Convert degrees to radians
-float toRadians(float degrees) {
+// Helper to convert degrees to radians (already in SimpleMath.h but can be local too)
+static float toRadians(float degrees) {
     return degrees * (static_cast<float>(M_PI) / 180.0f);
 }
 
-Camera::Camera(Vec3 position, Vec3 focus, Vec3 up, float initialYaw, float initialPitch)
-    : front(Vec3(0.0f, 0.0f, -1.0f)),
-      movementSpeed(2.5f),
+Camera::Camera(Vec3 initialPosition, Vec3 initialFocalPoint, Vec3 worldUpDirection)
+    : position(initialPosition),
+      worldUp(worldUpDirection.normalize()),
+      focalPoint(initialFocalPoint),
+      movementSpeed(3.5f),      // Slightly increased default speed
       mouseSensitivity(0.1f),
-      orbitSensitivity(0.3f), // Adjust these as needed
-      panSensitivity(0.005f), // Adjust these as needed
-      zoomSensitivity(1.0f),  // Adjust these as needed
+      orbitSensitivity(0.25f),  // Degrees per pixel delta
+      panSensitivity(0.0025f),  // World units per pixel delta (scaled by distance)
+      zoomSensitivity(0.8f),    // Change in distance per scroll unit
       fov(45.0f),
-      projectionMode(ProjectionMode::Perspective) { // Default to perspective
+      projectionMode(ProjectionMode::Perspective) {
 
-    this->position = position;
-    this->worldUp = up;
-    this->focalPoint = focus;
+    // Calculate initial distance, yaw, and pitch from the initial position and focal point
+    Vec3 dirToCamera = position - focalPoint;
+    distanceToFocalPoint = dirToCamera.length();
 
-    // For FPS mode initial orientation (if used)
-    this->yaw = initialYaw;
-    this->pitch = initialPitch;
+    if (distanceToFocalPoint < 0.001f) { // Avoid camera being exactly at the focal point
+        // Move camera slightly along an arbitrary axis if it's at the focal point
+        position = focalPoint + Vec3(0.0f, 0.0f, 1.0f); 
+        dirToCamera = position - focalPoint;
+        distanceToFocalPoint = dirToCamera.length();
+    }
 
-    // For Orbit mode, calculate initial distance and orientation
-    this->front = (this->focalPoint - this->position).normalize();
-    this->distanceToFocalPoint = (this->focalPoint - this->position).length();
-    
-    // Calculate initial yaw and pitch for orbit based on position and focalPoint
-    // This makes the initial yaw/pitch consistent with the starting orientation
-    Vec3 direction = (this->focalPoint - this->position).normalize();
-    this->yaw = std::atan2(direction.z, direction.x) * (180.0f / static_cast<float>(M_PI));
-    this->pitch = std::asin(direction.y) * (180.0f / static_cast<float>(M_PI));
+    Vec3 dirToCameraNorm = dirToCamera.normalize();
 
+    // Pitch: angle with the XZ plane (focal point's horizontal plane)
+    // asin's range is [-PI/2, PI/2], so pitch in degrees will be [-90, 90]
+    pitch = std::asin(dirToCameraNorm.y) * (180.0f / static_cast<float>(M_PI));
 
-    updateCameraVectors(); // Initial calculation of right/up
+    // Yaw: angle in the XZ plane relative to some axis (e.g., positive Z)
+    // atan2(x, z) gives angle from +Z axis. Positive yaw = rotate right (clockwise looking down Y).
+    // Or atan2(z, x) for angle from +X axis.
+    // Let's use atan2(x, z) to be somewhat consistent with common yaw definitions (0 along +Z)
+    float xz_len = std::sqrt(dirToCameraNorm.x * dirToCameraNorm.x + dirToCameraNorm.z * dirToCameraNorm.z);
+    if (xz_len > 0.001f) {
+        // Yaw: Angle of projection on XZ plane from the Z-axis towards X-axis.
+        // If camera is at (0,y,dist) from focal (0,y,0), dirToCameraNorm = (0,0,1). atan2(0,1) = 0.
+        // If camera is at (dist,y,0) from focal (0,y,0), dirToCameraNorm = (1,0,0). atan2(1,0) = 90.
+        yaw = std::atan2(dirToCameraNorm.x, dirToCameraNorm.z) * (180.0f / static_cast<float>(M_PI));
+    } else {
+        yaw = 0.0f; // Looking straight up or down, yaw is undefined/arbitrary
+    }
+
+    updateCameraVectors(); // Initial calculation of front, right, up based on these angles
 }
 
+void Camera::updateCameraVectors() {
+    // Calculate camera's new position based on focal point, distance, yaw, and pitch
+    float radPitch = toRadians(pitch);
+    float radYaw = toRadians(yaw);
+
+    // Spherical to Cartesian conversion for the offset from the focal point
+    // x = r * cos(pitch) * sin(yaw)
+    // y = r * sin(pitch)
+    // z = r * cos(pitch) * cos(yaw)
+    // (This assumes yaw=0 means camera is along +Z from focal, pitch=0 is level)
+    position.x = focalPoint.x + distanceToFocalPoint * std::cos(radPitch) * std::sin(radYaw);
+    position.y = focalPoint.y + distanceToFocalPoint * std::sin(radPitch);
+    position.z = focalPoint.z + distanceToFocalPoint * std::cos(radPitch) * std::cos(radYaw);
+
+    // Recalculate front, right, and up vectors
+    front = (focalPoint - position).normalize(); // Camera always looks towards the focal point
+    right = Vec3::cross(front, worldUp).normalize();
+    up = Vec3::cross(right, front).normalize(); // Camera's local up vector
+}
+
+void Camera::setFocalPoint(const Vec3& newFocalPoint) {
+    Vec3 oldPosition = position;
+    focalPoint = newFocalPoint;
+    
+    // Option 1: Keep the same distance and orientation relative to the new focal point
+    // This means the camera "jumps" to maintain the same viewing angle and distance
+    // from the new target.
+    // updateCameraVectors(); 
+
+    // Option 2: Keep current camera position, just update yaw/pitch/distance to look at new focal point
+    // This feels more natural if an object is selected and camera just re-orients.
+    Vec3 dirToCamera = oldPosition - focalPoint;
+    distanceToFocalPoint = dirToCamera.length();
+
+    if (distanceToFocalPoint < 0.01f) { // If camera is too close to new focal point
+        // Move camera slightly back along its current front vector to maintain a minimum distance
+        // This prevents issues if the new focal point is where the camera currently is.
+        // We need a 'front' vector before this logic.
+        // Let's recalculate initial front based on old position and new focal point
+        Vec3 tempFront = (focalPoint - oldPosition).normalize();
+        if (tempFront.length() < 0.001f) tempFront = Vec3(0,0,-1); // Default if still coincident
+
+        position = focalPoint - (tempFront * 1.0f); // Default distance of 1
+        dirToCamera = position - focalPoint;
+        distanceToFocalPoint = dirToCamera.length();
+    }
+    
+    Vec3 dirToCameraNorm = dirToCamera.normalize();
+    pitch = std::asin(dirToCameraNorm.y) * (180.0f / static_cast<float>(M_PI));
+    float xz_len = std::sqrt(dirToCameraNorm.x * dirToCameraNorm.x + dirToCameraNorm.z * dirToCameraNorm.z);
+    if (xz_len > 0.001f) {
+        yaw = std::atan2(dirToCameraNorm.x, dirToCameraNorm.z) * (180.0f / static_cast<float>(M_PI));
+    } // else keep old yaw if looking straight up/down
+
+    updateCameraVectors(); // This updates position based on new yaw/pitch/dist to focal, AND front/right/up
+}
+
+
 Mat4 Camera::getViewMatrix() {
-    // For an orbiting camera, position is determined by focalPoint, distance, yaw, and pitch
-    // For FPS, it's just eye, eye + front, worldUp
-    // We'll use a unified approach for now: position and front are always maintained
-    return Mat4::lookAt(position, position + front, worldUp);
+    // For an orbit camera, view matrix is always looking from 'position' to 'focalPoint'
+    return Mat4::lookAt(position, focalPoint, worldUp);
 }
 
 Mat4 Camera::getProjectionMatrix(float aspectRatio) {
-    if (aspectRatio <= 0) aspectRatio = 1.0f; // Prevent division by zero or negative
-    float fovRadians = toRadians(fov);
+    if (aspectRatio <= 0.0f) aspectRatio = 1.0f; // Prevent division by zero or negative aspect
+    float fovRad = toRadians(fov);
     float nearPlane = 0.1f;
-    float farPlane = 1000.0f; // Increased far plane
-    return Mat4::perspective(fovRadians, aspectRatio, nearPlane, farPlane);
+    float farPlane = 1000.0f; // Increased far plane for larger scenes
+    return Mat4::perspective(fovRad, aspectRatio, nearPlane, farPlane);
 }
 
 void Camera::processKeyboardFPS(const char* direction, float deltaTime) {
     float velocity = movementSpeed * deltaTime;
-    if (strcmp(direction, "FORWARD") == 0) position = position + (front * velocity);
-    if (strcmp(direction, "BACKWARD") == 0) position = position - (front * velocity);
-    if (strcmp(direction, "LEFT") == 0) position = position - (right * velocity);
-    if (strcmp(direction, "RIGHT") == 0) position = position + (right * velocity);
-    if (strcmp(direction, "UP") == 0) position = position + (worldUp * velocity); // Using worldUp for simple vertical
-    if (strcmp(direction, "DOWN") == 0) position = position - (worldUp * velocity);
-    // After FPS movement, if we want to keep orbiting around the same focal point,
-    // we might need to update focalPoint or re-evaluate distance.
-    // For a true free-look FPS mode, focalPoint isn't relevant during movement.
+    Vec3 moveDirection(0.0f, 0.0f, 0.0f);
+
+    // For FPS movement, we use the camera's current orientation (front, right, worldUp)
+    // Note: 'front' for an orbit camera points towards the focal point.
+    // If you want classic FPS where 'front' is where you're looking irrespective of a focal point,
+    // this FPS movement will move the camera AND its focal point together.
+    if (strcmp(direction, "FORWARD") == 0) moveDirection = moveDirection + front;
+    if (strcmp(direction, "BACKWARD") == 0) moveDirection = moveDirection - front;
+    if (strcmp(direction, "LEFT") == 0) moveDirection = moveDirection - right;
+    if (strcmp(direction, "RIGHT") == 0) moveDirection = moveDirection + right;
+    if (strcmp(direction, "UP") == 0) moveDirection = moveDirection + worldUp; // Move along world Y
+    if (strcmp(direction, "DOWN") == 0) moveDirection = moveDirection - worldUp; // Move along world Y
+
+    if (moveDirection.length() > 0.001f) {
+        Vec3 displacement = moveDirection.normalize() * velocity;
+        position = position + displacement;
+        focalPoint = focalPoint + displacement; // Move focal point along with camera for FPS-like free look
+        // No need to update yaw/pitch/distance, as they are relative to focal point.
+        // updateCameraVectors() isn't strictly needed here if focal point moves with position,
+        // but front/right/up might need re-orthogonalization if not perfect.
+        // However, our getViewMatrix uses position and focalPoint, so it remains correct.
+        // Let's ensure front/right/up are updated for consistency if other systems use them.
+        this->front = (this->focalPoint - this->position).normalize(); // Keep front pointing to focal
+        this->right = Vec3::cross(this->front, this->worldUp).normalize();
+        this->up    = Vec3::cross(this->right, this->front).normalize();
+    }
 }
 
 void Camera::processMouseOrbit(float xoffset, float yoffset) {
-    xoffset *= orbitSensitivity;
-    yoffset *= orbitSensitivity;
+    yaw -= xoffset * orbitSensitivity;   // Adjust yaw (horizontal orbit)
+    pitch += yoffset * orbitSensitivity; // Adjust pitch (vertical orbit) - sign might depend on preference
 
-    yaw += xoffset;
-    pitch -= yoffset; // Reversed for typical orbit controls (mouse up = camera goes up)
+    // Clamp pitch to avoid flipping
+    pitch = std::max(-89.9f, std::min(89.9f, pitch)); // Avoid gimbal lock at exactly +/-90
 
-    // Constrain pitch
-    pitch = std::max(-89.0f, std::min(89.0f, pitch));
-
-    updateOrbitingCameraVectors();
+    updateCameraVectors(); // Recalculate position and orientation vectors
 }
 
 void Camera::processMousePan(float xoffset, float yoffset) {
-    // Pan moves the camera and the focal point together
-    Vec3 rightDisplacement = right * (-xoffset * panSensitivity * (distanceToFocalPoint / 5.0f)); // Scale pan with distance
-    Vec3 upDisplacement = up * (yoffset * panSensitivity * (distanceToFocalPoint / 5.0f));       // Scale pan with distance
+    // Pan speed can be scaled by distance for more intuitive control
+    float effectivePanSpeed = panSensitivity * (distanceToFocalPoint * 0.2f); // Adjust 0.2f as needed
+    effectivePanSpeed = std::max(0.001f, effectivePanSpeed); // Minimum pan speed
 
-    position = position + rightDisplacement + upDisplacement;
-    focalPoint = focalPoint + rightDisplacement + upDisplacement;
+    // Move camera and focal point by the same amount along camera's right and up axes
+    Vec3 panRight = right * (-xoffset * effectivePanSpeed); // Invert xoffset for natural pan
+    Vec3 panUp    = up    * ( yoffset * effectivePanSpeed); // yoffset might need inversion depending on mouse coords
 
-    updateCameraVectors(); // Recalculate front based on new position relative to focal point
+    position   = position + panRight + panUp;
+    focalPoint = focalPoint + panRight + panUp;
+
+    // After panning, the relative orientation (yaw/pitch/distance) to the focal point has not changed,
+    // so updateCameraVectors() is not strictly needed to recalculate position from those angles.
+    // However, we need to ensure `front`, `right`, and `up` are correct for subsequent operations.
+    // Since `position` and `focalPoint` both moved, the `front` vector is still valid.
+    // `right` and `up` depend on `front` and `worldUp`, so they should also be fine.
+    // For safety, or if drift occurs:
+    // updateCameraVectors(); // This would re-derive yaw/pitch from new pos/focal and then update pos again.
+    // A simpler update might be better if only panning:
+    this->front = (this->focalPoint - this->position).normalize(); // Keep front pointing to focal
+    this->right = Vec3::cross(this->front, this->worldUp).normalize();
+    this->up    = Vec3::cross(this->right, this->front).normalize();
 }
 
-void Camera::processMouseZoom(float yoffset) {
-    distanceToFocalPoint -= yoffset * zoomSensitivity;
-    distanceToFocalPoint = std::max(0.1f, distanceToFocalPoint); // Prevent going through or behind focal point
+void Camera::processMouseZoom(float yoffsetScroll) {
+    // yoffsetScroll is typically +1 or -1 from mouse wheel
+    distanceToFocalPoint -= yoffsetScroll * zoomSensitivity;
+    distanceToFocalPoint = std::max(0.1f, distanceToFocalPoint); // Clamp minimum distance
 
-    // Recalculate position based on new distance, keeping current orientation around focal point
-    position = focalPoint - (front * distanceToFocalPoint);
-    // No need to call updateCameraVectors if only distance changes and front vector direction is maintained
-    // However, if zoom changes FOV:
-    // fov -= yoffset * zoomSensitivity;
-    // fov = std::max(1.0f, std::min(90.0f, fov));
-}
-
-
-void Camera::updateCameraVectors() {
-    // This function will now primarily update for an orbit-style camera,
-    // or you can have a mode switch. For simplicity, let's make it orbit-centric.
-    updateOrbitingCameraVectors();
-}
-
-
-void Camera::updateOrbitingCameraVectors() {
-    // Calculate the new 'front' vector from Euler angles (yaw, pitch)
-    // This defines the direction from the focal point to the camera
-    Vec3 direction;
-    direction.x = std::cos(toRadians(yaw)) * std::cos(toRadians(pitch));
-    direction.y = std::sin(toRadians(pitch));
-    direction.z = std::sin(toRadians(yaw)) * std::cos(toRadians(pitch));
-    
-    // The camera's 'front' vector should point from the camera towards the focal point.
-    // So, if 'direction' points from focal point to camera, then 'front' is -direction.
-    // However, it's often more intuitive to define yaw/pitch as the camera's orientation.
-    // Let's assume yaw/pitch orient the vector FROM focal point TO camera.
-    // Then, position is focalPoint + direction_normalized * distance.
-    // And 'front' vector (what camera looks at) is (focalPoint - position).normalize()
-
-    position = focalPoint - (direction.normalize() * distanceToFocalPoint);
-
-    front = (focalPoint - position).normalize();
-    right = Vec3::cross(front, worldUp).normalize();
-    up = Vec3::cross(right, front).normalize(); // Camera's local up
-}
-
-
-// Keep your old FPS update logic if you want a toggleable FPS mode
-void Camera::updateFPSCameraVectors() {
-    Vec3 newFront;
-    newFront.x = std::cos(toRadians(yaw)) * std::cos(toRadians(pitch));
-    newFront.y = std::sin(toRadians(pitch));
-    newFront.z = std::sin(toRadians(yaw)) * std::cos(toRadians(pitch));
-    front = newFront.normalize();
-    right = Vec3::cross(front, worldUp).normalize();
-    up = Vec3::cross(right, front).normalize();
+    updateCameraVectors(); // Recalculate position based on new distance, and update vectors
 }

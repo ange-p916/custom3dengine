@@ -1,0 +1,66 @@
+#ifndef CAMERA_H
+#define CAMERA_H
+
+#include "../SimpleMath.h" // Assuming SimpleMath.h is in include/
+
+struct GLFWwindow; // Forward declaration
+
+class Camera {
+public:
+    // Camera Attributes
+    Vec3 position;
+    Vec3 front;
+    Vec3 up;
+    Vec3 right;
+    Vec3 worldUp;
+
+    // For Orbit Camera
+    Vec3 focalPoint;
+    float distanceToFocalPoint;
+
+    // Euler Angles (representing camera's orientation around focal point for orbit)
+    float yaw;   // Rotation around world Y-axis
+    float pitch; // Elevation
+
+    // Camera options
+    float movementSpeed;    // For FPS-style movement (can be kept for free-look)
+    float mouseSensitivity; // General sensitivity, can be used by FPS or as a base
+    float orbitSensitivity;
+    float panSensitivity;
+    float zoomSensitivity;
+    float fov;
+
+    enum class ProjectionMode {
+        Perspective,
+        Orthographic // Future consideration
+    };
+    ProjectionMode projectionMode;
+
+
+    Camera(Vec3 initialPosition = Vec3(0.0f, 2.0f, 7.0f),
+           Vec3 initialFocalPoint = Vec3(0.0f, 0.5f, 0.0f),
+           Vec3 worldUpDirection = Vec3(0.0f, 1.0f, 0.0f));
+
+    Mat4 getViewMatrix();
+    Mat4 getProjectionMatrix(float aspectRatio);
+
+    // FPS-style movement (for free-look when scene view is focused)
+    void processKeyboardFPS(const char* direction, float deltaTime);
+
+    // Editor camera controls
+    void processMouseOrbit(float xoffset, float yoffset);
+    void processMousePan(float xoffset, float yoffset);
+    void processMouseZoom(float yoffsetScroll); // yoffsetScroll from mouse wheel
+
+    // Update camera vectors (primarily for orbit camera now)
+    void updateCameraVectors();
+
+    // Call this if focal point is changed externally (e.g., selecting an object)
+    void setFocalPoint(const Vec3& newFocalPoint);
+
+private:
+    // No separate updateFPSCameraVectors needed if FPS mode directly modifies position/front
+    // and orbit mode always recalculates from focalPoint/distance/yaw/pitch
+};
+
+#endif // CAMERA_H

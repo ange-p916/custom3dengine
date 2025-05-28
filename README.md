@@ -1,4 +1,4 @@
-Currently making a 3d engine with the help of AI (google gemini).
+Currently making a 3d engine.
 
 Its supposed to be a small light weight 3d engine made in c++. 
 So far it just has basic rendering capabilities.
